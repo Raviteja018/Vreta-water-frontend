@@ -29,7 +29,7 @@ const JoinAsAgent = () => {
         </a>
         <div className="pt-4 text-gray-600">
           <p>
-            Partner with us to promote India’s first 4000ppb hydrogen wellness systems.
+            Partner with us to promote India’s first 4000 - 6000 ppb hydrogen wellness systems.
           </p>
           <p>Attractive commissions, expert training, and national branding support.</p>
         </div>

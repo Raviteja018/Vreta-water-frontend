@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 const ProductCard = ({ title, image, features, price, bestFor }) => (
   <div className="bg-white shadow-xl rounded-2xl p-6 w-full lg:w-[48%] transition-transform hover:scale-[1.01]">
     <h3 className="text-2xl font-bold text-indigo-700 mb-4">{title}</h3>
@@ -56,7 +55,7 @@ const HydrogenModulesSection = () => {
         />
         <ProductCard
           title="V2 Hydrogen Module"
-          image='/images/v1.png'
+          image='/images/v2.jpg'
           features={v2Features}
           price="₹3,93,025"
           bestFor="Clinics, Wellness Centers, Premium Use Cases"
@@ -67,3 +66,12 @@ const HydrogenModulesSection = () => {
 };
 
 export default HydrogenModulesSection;
+
+
+
+
+
+
+
+
+
