@@ -12,6 +12,7 @@ import {
   FaRegQuestionCircle
 } from "react-icons/fa";
 import { AiOutlineClose } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 
 export default function EmployeeHome() {
@@ -29,6 +30,8 @@ export default function EmployeeHome() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   const fetchContacts = async () => {
     try {
@@ -46,6 +49,19 @@ export default function EmployeeHome() {
       setStats(res.data);
     } catch (err) {
       console.error("Error fetching stats", err);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const res = await axios.get("http://localhost:4000/api/auth/me", config);
+        setCurrentUser(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching current user", err);
     }
   };
 
@@ -87,11 +103,12 @@ export default function EmployeeHome() {
   useEffect(() => {
     fetchContacts();
     fetchStats();
+    fetchCurrentUser();
 
     const interval = setInterval(() => {
       fetchContacts();
       fetchStats();
-    }, 30000); // refresh every 30 seconds
+    }, 30000); // Poll every 30 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -111,6 +128,14 @@ export default function EmployeeHome() {
       case 'not answered': return 'bg-gray-200 text-gray-700';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
   };
 
   const getStatusIcon = (status) => {
@@ -133,17 +158,32 @@ export default function EmployeeHome() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  Leads Dashboard
+                  {currentUser ? `${getGreeting()}, ${currentUser.fullName || currentUser.username}!` : 'Leads Dashboard'}
                 </h2>
                 <p className="text-gray-600 mt-2">
                   Manage and track your customer leads efficiently
                 </p>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-500">Last updated</div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {new Date().toLocaleTimeString()}
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <div className="text-sm text-gray-500">Last updated</div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    {new Date().toLocaleTimeString()}
+                  </div>
                 </div>
+                <button
+                  onClick={() => {
+                    console.log('Logging out...');
+                    localStorage.removeItem('token');
+                    navigate('/login');
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </button>
               </div>
             </div>
           </div>

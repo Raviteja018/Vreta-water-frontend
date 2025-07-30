@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Notification from './Notification';
+import { setToken, isAuthenticated, getUserRole } from '../src/utils/auth';
 
 export default function EmployeeLogin() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -9,7 +10,20 @@ export default function EmployeeLogin() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const role = getUserRole();
+      if (role === 'employee') {
+        navigate('/employee-home', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +31,11 @@ export default function EmployeeLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    
     try {
+      console.log('🔐 Attempting employee login...');
       const res = await axios.post('http://localhost:4000/api/auth/employee-login', form, {
         withCredentials: true,
         headers: {
@@ -25,22 +43,29 @@ export default function EmployeeLogin() {
         },
       });
 
+      // console.log('✅ Employee login successful');
+      
+      // Store token using auth utility
+      setToken(res.data.token);
+
       // Show success notification
       setNotificationMessage(`Welcome back, ${form.username}! 🎉 You've successfully logged in as Employee.`);
       setNotificationType('success');
       setShowNotification(true);
 
-      localStorage.setItem("token", res.data.token);
-
       // Navigate after a short delay to show the notification
       setTimeout(() => {
-        navigate('/employee-home');
+        navigate('/employee-home', { replace: true });
       }, 1500);
     } catch (err) {
-      setNotificationMessage(err.response?.data?.error || 'Login failed. Please check your credentials.');
+      console.error('❌ Employee login failed:', err);
+      const errorMessage = err.response?.data?.error || 'Login failed. Please check your credentials.';
+      setNotificationMessage(errorMessage);
       setNotificationType('error');
       setShowNotification(true);
-      setError(err.response?.data?.error || 'Login failed');
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 

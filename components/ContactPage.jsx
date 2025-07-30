@@ -1,6 +1,8 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import React, { useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,8 +14,7 @@ export default function ContactPage() {
   const [errors, setErrors] = useState({});
 
   const cities = [
-    "Hyderabad", "Mumbai", "Delhi", "Bangalore", "Chennai",
-    "Kolkata", "Pune", "Ahmedabad", "Jaipur", "Lucknow"
+    "Hyderabad", "Mumbai", "Delhi", "Bangalore", "Chennai", "Other"
   ];
 
   const handleChange = (e) => {
@@ -36,8 +37,8 @@ export default function ContactPage() {
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required.";
-    } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
-      newErrors.phone = "Phone number must be 10 digits and start with 6-9.";
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = "Phone number must be exactly 10 digits.";
     }
 
     if (!formData.location) {
@@ -53,30 +54,89 @@ export default function ContactPage() {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post("http://localhost:3000/api/contact", formData);
-      if (response.status === 201) {
-        alert("Form submitted successfully!");
-        setFormData({
-          fullName: "",
-          email: "",
-          phone: "",
-          location: "",
-        });
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
+      const response = await axios.post("http://localhost:4000/api/contact", formData);
+      toast.success('Form submitted successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+        style: {
+          transition: 'all 0.3s ease-in-out',
+        },
+      });
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        location: "",
+      });
     } catch (error) {
       console.error("Axios Error:", error);
       if (error.response?.data?.error) {
-        alert(error.response.data.error);
+        if (error.response.status === 400 && error.response.data.error.includes('duplicate key error')) {
+          toast.error('This email is already registered. Please use a different email address.', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else {
+          toast.error(error.response.data.error || 'An error occurred. Please try again.', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       } else {
-        alert("Submission failed. Please try again later.");
+        toast.error('Submission failed. Please check your details and try again.', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     }
   };
 
   return (
     <section className="bg-white py-16 px-4 md:px-8 max-w-7xl mx-auto">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+        style={{
+          '--toastify-color-progress-light': '#3b82f6',
+          '--toastify-transition': 'all 300ms ease-in-out',
+          '--toastify-toast-width': '320px',
+          '--toastify-toast-min-height': '64px',
+        }}
+      />
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-900">
           Reach Out To Book Or Ask Anything

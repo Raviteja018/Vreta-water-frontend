@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Notification from './Notification';
+import { setToken, isAuthenticated, getUserRole } from '../src/utils/auth';
 
 export default function AdminLogin() {
   const [form, setForm] = useState({ username:'', password:'' });
@@ -9,7 +10,20 @@ export default function AdminLogin() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const role = getUserRole();
+      if (role === 'admin') {
+        navigate('/admin-home', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +31,11 @@ export default function AdminLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    
     try {
+      console.log('🔐 Attempting admin login...');
       const res = await axios.post('http://localhost:4000/api/auth/admin-login', form, {
         withCredentials: true,
         headers: {
@@ -25,22 +43,29 @@ export default function AdminLogin() {
         },
       });
 
+      console.log('✅ Admin login successful');
+      
+      // Store token using auth utility
+      setToken(res.data.token);
+
       // Show success notification
       setNotificationMessage(`Welcome back, ${form.username}! 🎉 You've successfully logged in as Administrator.`);
       setNotificationType('success');
       setShowNotification(true);
 
-      localStorage.setItem("token", res.data.token);
-
       // Navigate after a short delay to show the notification
       setTimeout(() => {
-        navigate('/admin-home');
+        navigate('/admin-home', { replace: true });
       }, 1500);
     } catch (err) {
-      setNotificationMessage(err.response?.data?.error || 'Login failed. Please check your credentials.');
+      console.error('❌ Admin login failed:', err);
+      const errorMessage = err.response?.data?.error || 'Login failed. Please check your credentials.';
+      setNotificationMessage(errorMessage);
       setNotificationType('error');
       setShowNotification(true);
-      setError(err.response?.data?.error || 'Login failed');
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,17 +118,25 @@ export default function AdminLogin() {
             />
           </div>
           <button
-            type="submit"
-            className="w-full py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-semibold"
-          >
-            Login
-          </button>
+  type="submit"
+  disabled={loading}
+  className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {loading ? (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+      Signing In...
+    </div>
+  ) : (
+    'Sign In'
+  )}
+</button>
+
         </form>
       </div>
     </div>
   );
 }
-
 
 
 

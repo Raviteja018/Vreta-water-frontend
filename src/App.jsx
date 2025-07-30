@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from '/components/Header';
 import Footer from '/components/Footer';
@@ -13,8 +13,19 @@ import ManagerLogin from '../components/ManagerLogin';
 import AdminLogin from '../components/AdminLogin';
 import EmployeeLogin from '../components/EmployeeLogin';
 import EmployeeHome from '../components/EmployeeHome/EmployeeHome';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// Authentication components
+import ProtectedRoute from './components/ProtectedRoute';
+import AuthGuard from './components/AuthGuard';
+import RoleBasedRedirect from './components/RoleBasedRedirect';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 function AppContent() {
+  useEffect(() => {
+    AOS.init({ duration: 1000, once: false });
+  }, []);
   const location = useLocation();
   
   // Routes where header and footer should be hidden
@@ -35,18 +46,59 @@ function AppContent() {
       {!shouldHideHeaderFooter && <Header />}
       <main>
         <Routes>
-        <Route path='/' element={<RoleSelection/>}/>
+          {/* Public Routes */}
+          <Route path='/' element={
+            <RoleBasedRedirect>
+              <RoleSelection/>
+            </RoleBasedRedirect>
+          }/>
           <Route path="/home" element={<Home />} />
-          <Route path='/employee-login' element={<EmployeeLogin/>} />
-          <Route path='/employee-home' element={<EmployeeHome/>} />
-          <Route path='/manager-login' element={<ManagerLogin/>} />
-          <Route path='/manager-home' element={<ManagerHome/>} />
-          <Route path='/admin-login' element={<AdminLogin/>} />
-          <Route path='/admin-home' element={<AdminHome/>} />
           <Route path="/about" element={<AboutSection />} />
           <Route path="/products" element={<ProductComparisonSection />} />
           <Route path="/contact" element={<ContactPage />} />
+          
+          {/* Login Routes - Only accessible if not authenticated */}
+          <Route path='/employee-login' element={
+            <RoleBasedRedirect>
+              <EmployeeLogin/>
+            </RoleBasedRedirect>
+          }/>
+          <Route path='/manager-login' element={
+            <RoleBasedRedirect>
+              <ManagerLogin/>
+            </RoleBasedRedirect>
+          }/>
+          <Route path='/admin-login' element={
+            <RoleBasedRedirect>
+              <AdminLogin/>
+            </RoleBasedRedirect>
+          }/>
+          
+          {/* Protected Routes - Role-based access */}
+          <Route path='/employee-home' element={
+            <AuthGuard requiredRoles={['employee']} fallbackRoute='/employee-login'>
+              <EmployeeHome/>
+            </AuthGuard>
+          }/>
+          <Route path='/manager-home' element={
+            <AuthGuard requiredRoles={['manager']} fallbackRoute='/manager-login'>
+              <ManagerHome/>
+            </AuthGuard>
+          }/>
+          <Route path='/admin-home' element={
+            <AuthGuard requiredRoles={['admin']} fallbackRoute='/admin-login'>
+              <AdminHome/>
+            </AuthGuard>
+          }/>
+          
+          {/* Catch-all route - redirect to role selection */}
+          <Route path='*' element={
+            <RoleBasedRedirect>
+              <RoleSelection/>
+            </RoleBasedRedirect>
+          }/>
         </Routes>
+        <ToastContainer position="top-center" autoClose={3000} />
       </main>
       {!shouldHideHeaderFooter && <Footer />}
     </>

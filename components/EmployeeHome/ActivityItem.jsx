@@ -1,5 +1,8 @@
 import React from "react";
-import { FaChartPie, FaUserPlus, FaPhoneAlt, FaSyncAlt, FaCheckCircle, FaRegEdit, FaRegSmileBeam, FaRegFrown, FaRegQuestionCircle } from "react-icons/fa";
+import {
+  FaChartPie, FaUserPlus, FaPhoneAlt, FaSyncAlt, FaCheckCircle,
+  FaRegEdit, FaRegSmileBeam, FaRegFrown, FaRegQuestionCircle
+} from "react-icons/fa";
 
 export default function ActivityItem({ contact, setSelectedLead, setNotes }) {
   const getStatusColor = (status) => {
@@ -29,20 +32,26 @@ export default function ActivityItem({ contact, setSelectedLead, setNotes }) {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+      
+      {/* Info Section */}
       <div className="flex-1">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="text-2xl">{getStatusIcon()}</div>
-          <div>
+        <div className="flex items-start gap-3 mb-2">
+          <div className="text-xl">{getStatusIcon()}</div>
+          <div className="space-y-1">
             <p className="font-semibold text-gray-900">{contact.fullName}</p>
-            <p className="text-sm text-gray-600">{contact.email} • {contact.phone} • {contact.location}</p>
+            <p className="text-sm text-gray-600 break-words">
+              {contact.email} • {contact.phone} • {contact.location}
+            </p>
             <p className="text-xs text-gray-400">
               {new Date(contact.createdAt).toLocaleDateString()} at {new Date(contact.createdAt).toLocaleTimeString()}
             </p>
           </div>
         </div>
       </div>
-      <div className="flex items-center space-x-3">
+
+      {/* Action Section */}
+      <div className="flex flex-wrap md:flex-nowrap items-center justify-start md:justify-end gap-3">
         <span className={`inline-flex items-center rounded-full px-3 py-1 font-semibold text-xs tracking-wide shadow-sm ${getStatusColor(contact.status)}`}>
           {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
         </span>
@@ -51,9 +60,9 @@ export default function ActivityItem({ contact, setSelectedLead, setNotes }) {
             setSelectedLead(contact);
             setNotes(contact.notes || '');
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+          className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
         >
-          <FaRegEdit /> Manage
+          <FaRegEdit className="text-sm" /> Manage
         </button>
       </div>
     </div>

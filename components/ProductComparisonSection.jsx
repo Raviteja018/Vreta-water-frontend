@@ -1,77 +1,87 @@
-import React from 'react';
+import React from "react";
 
-const ProductCard = ({ title, image, features, price, bestFor }) => (
-  <div className="bg-white shadow-xl rounded-2xl p-6 w-full lg:w-[48%] transition-transform hover:scale-[1.01]">
-    <h3 className="text-2xl font-bold text-indigo-700 mb-4">{title}</h3>
-    <img src={image} alt={title} className="rounded-xl w-full h-64 object-cover mb-6 border" />
-    <ul className="space-y-2 mb-4 text-gray-700">
+const ProductCard = ({ title, image, features, originalPrice, discountedPrice, bestFor }) => (
+  <div className="bg-white shadow-2xl rounded-3xl p-6 w-full lg:w-[48%] hover:scale-[1.02] transition-all duration-300 border border-gray-100">
+    <h3 className="text-2xl font-extrabold text-indigo-800 mb-4 text-center">{title}</h3>
+
+    <img
+      src={image}
+      alt={title}
+      className="rounded-xl w-full h-64 object-contain mb-6 border bg-gray-50 p-2"
+    />
+
+    <ul className="space-y-2 mb-6 text-gray-700 text-sm md:text-base">
       {features.map((item, idx) => (
         <li key={idx}>
-          <span className="font-semibold text-gray-800">{item.label}:</span> {item.value}
+          <span className="font-semibold text-gray-900">{item.label}:</span> {item.value}
         </li>
       ))}
     </ul>
-    <p className="text-xl font-semibold text-green-700 mb-2">Price: {price}</p>
-    <p className="text-md text-gray-600">Best For: <span className="font-medium text-black">{bestFor}</span></p>
+
+    <div className="mb-4">
+      <p className="text-sm text-gray-500 line-through">Original: {originalPrice}</p>
+      <p className="text-xl md:text-2xl font-bold text-green-600">Now: {discountedPrice}</p>
+    </div>
+
+    <p className="text-sm text-gray-600 italic">
+      <span className="font-medium text-black">Best For:</span> {bestFor}
+    </p>
   </div>
 );
 
 const HydrogenModulesSection = () => {
   const v1Features = [
-    { label: 'Function', value: 'Produces fresh hydrogen-rich water' },
-    { label: 'Hydrogen Concentration', value: '4000+ ppb (very high & stable)' },
-    { label: 'Freshness & Potency', value: 'Real-time generation — full benefit preserved' },
-    { label: 'Use Case', value: 'Personal wellness, daily hydration' },
-    { label: 'Bottling Suitability', value: '❌ Not recommended — hydrogen escapes in seconds' },
-    { label: 'Output Types', value: 'Hydrogen Water' },
-    { label: 'Flow Rate', value: 'Standard personal use' },
+    { label: "Function", value: "Produces hydrogen water + hydrogen gas + oxygen" },
+    { label: "Hydrogen Concentration", value: "High output with additional gas therapy options" },
+    { label: "Freshness", value: "Real-time generation — ideal for therapy & multi-use" },
+    { label: "Use Case", value: "Personal + Commercial (clinics, spas, etc.)" },
+    { label: "Bottling Suitability", value: "❌ Hydrogen must be consumed fresh" },
+    { label: "Output Types", value: "Hydrogen Water + Hydrogen Gas + Oxygen" },
+    { label: "Flow Rate", value: "500ml/min — supports multiple users" },
   ];
 
-  const v2Features = [
-    { label: 'Function', value: 'Produces hydrogen water + hydrogen gas + oxygen' },
-    { label: 'Hydrogen Concentration', value: 'High output with additional gas therapy options' },
-    { label: 'Freshness & Potency', value: 'Real-time generation — ideal for therapy & multi-use' },
-    { label: 'Use Case', value: 'Personal + Commercial (clinics, spas, etc.)' },
-    { label: 'Bottling Suitability', value: '❌ Same — hydrogen must be consumed fresh' },
-    { label: 'Output Types', value: 'Hydrogen Water + Hydrogen Gas + Oxygen' },
-    { label: 'Flow Rate', value: '500ml/min — supports multiple users' },
+  const v1ProFeatures = [
+    { label: "Function", value: "Produces fresh hydrogen-rich water" },
+    { label: "Hydrogen Concentration", value: "4000+ ppb (very high & stable)" },
+    { label: "Freshness", value: "Real-time generation — full benefit preserved" },
+    { label: "Use Case", value: "Personal wellness, daily hydration" },
+    { label: "Bottling Suitability", value: "❌ Not recommended — hydrogen escapes in seconds" },
+    { label: "Output Types", value: "Hydrogen Water" },
+    { label: "Flow Rate", value: "Standard personal use" },
   ];
 
   return (
-    <section className="px-6 py-12 bg-gray-50">
-      <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
-        Hydrogen Module Difference
-      </h2>
-      <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
-        Real Hydrogen, Real Results. Unlike typical bottled hydrogen water that loses potency within minutes, our modules generate high-concentration hydrogen water fresh on demand—ensuring maximum absorption, effectiveness, and scientifically proven health benefits.
-      </p>
-      <div className="flex flex-col lg:flex-row justify-between gap-8">
-        <ProductCard
-          title="V1 Hydrogen Module"
-          image='/images/v1.png'
-          features={v1Features}
-          price="₹5,51,815"
-          bestFor="Individuals & Home Users"
-        />
-        <ProductCard
-          title="V2 Hydrogen Module"
-          image='/images/v2.jpg'
-          features={v2Features}
-          price="₹3,93,025"
-          bestFor="Clinics, Wellness Centers, Premium Use Cases"
-        />
+    <section className="px-4 md:px-10 py-12 bg-gradient-to-br from-[#f7faff] to-[#e4ecf9]">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-center text-gray-800 mb-6">
+          Hydrogen Module Difference
+        </h2>
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12 text-sm md:text-base">
+          Real Hydrogen, Real Results. Our modules generate high-concentration hydrogen water
+          fresh on demand—ensuring maximum absorption and scientifically proven health benefits.
+        </p>
+
+        <div className="flex flex-col lg:flex-row justify-between gap-10">
+          <ProductCard
+            title="V1 Pro Hydrogen Module"
+            image="/images/v1-pro.png"
+            features={v1ProFeatures}
+            originalPrice="₹6,65,000"
+            discountedPrice="₹5,52,825"
+            bestFor="Individuals & Home Users"
+          />
+          <ProductCard
+            title="V1 Hydrogen Module"
+            image="/images/v1.png"
+            features={v1Features}
+            originalPrice="₹4,45,000"
+            discountedPrice="₹3,93,025"
+            bestFor="Clinics, Wellness Centers, Premium Use Cases"
+          />
+        </div>
       </div>
     </section>
   );
 };
 
 export default HydrogenModulesSection;
-
-
-
-
-
-
-
-
-
